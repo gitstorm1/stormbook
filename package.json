@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/gitstorm1/stormbook/issues"
   },
-  "homepage": "https://github.com/gitstorm1/stormbook#readme"
+  "homepage": "https://github.com/gitstorm1/stormbook#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
 }
