@@ -1,0 +1,19 @@
+{
+  "name": "stormbook",
+  "version": "1.0.0",
+  "description": "A simple social media web app made using the PERN stack (PostgreSQL, Express, React, Node).",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitstorm1/stormbook.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gitstorm1/stormbook/issues"
+  },
+  "homepage": "https://github.com/gitstorm1/stormbook#readme"
+}
