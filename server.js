@@ -7,10 +7,18 @@ const port = 3000;
 
 const app = express();
 
-app.use('/', express.static(__public, { index: false, }));
+app.use('/assets', express.static(path.join(__public, 'assets'), { index: false, }));
 
-app.get('/', (req, res) => {
-    res.sendFile('login-page.html', { root: __public });
+app.get('/', async (req, res) => {
+
+
+    res.sendFile('login.html', { root: __public });
+});
+
+app.get('/sign-up', async (req, res) => {
+
+
+    res.sendFile('sign-up.html', { root: __public });
 });
 
 app.listen(port, 'localhost', () => {
