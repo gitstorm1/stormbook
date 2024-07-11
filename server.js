@@ -3,6 +3,7 @@ import path from 'path';
 
 import express from 'express';
 import PGP from 'pg-promise';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -26,6 +27,12 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', async (req, res) => {
 
 
+    res.redirect('/login');
+});
+
+app.get('/login', async (req, res) => {
+
+
     res.sendFile('login.html', { root: __public });
 });
 
@@ -36,7 +43,8 @@ app.get('/sign-up', async (req, res) => {
 });
 
 app.post('/sign-up', async (req, res) => {
-    console.log(req.body, req);
+    const email = req.body.email;
+    const pwdHash = await bcrypt.hash(req.body.password, 10);
     res.redirect('/');
 });
 
