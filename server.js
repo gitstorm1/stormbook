@@ -46,26 +46,45 @@ app.use(
 );
 
 app.get('/login', async (req, res) => {
-
+    if (req.session.user) return res.redirect('/');
 
     res.sendFile('login.html', { root: __public });
 });
 
 app.get('/sign-up', async (req, res) => {
-
+    if (req.session.user) return res.redirect('/');
 
     res.sendFile('sign-up.html', { root: __public });
 });
 
 app.get('/', async (req, res) => {
     
-
-    res.redirect('/login');
+    res.end();
 });
 
 app.post('/sign-up', async (req, res) => {
     const email = req.body.email;
+    const password = req.body.password;
+    const username = req.body.username;
+
+    const existing = await db.any('SELECT id FROM users WHERE email=$1 LIMIT 1', email);
+    
+    if (existing.length !== 0) {
+        return res.send('An account already exists of the specified email');
+    }
+
+    if (password.length < 8) {
+        return res.send('Password must be at least 8 characters long');
+    }
+
+    if (username.length < 3) {
+        return res.send('Username is too short');
+    }
+
     const pwdHash = await bcrypt.hash(req.body.password, 10);
+
+
+
     res.redirect('/');
 });
 
