@@ -3,7 +3,37 @@ CREATE TABLE users (
     user_id CHAR(30) UNIQUE NOT NULL,
 
     email VARCHAR(50) UNIQUE NOT NULL,
-    pwdHash CHAR(60) NOT NULL,
+    pwd_hash CHAR(60) UNIQUE NOT NULL,
 
     username VARCHAR(30) NOT NULL,
+
+    pfp_url TEXT NOT NULL,
+
+    about TEXT
+);
+
+CREATE TABLE friendships (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+
+    member1_id INTEGER NOT NULL REFERENCES users(id),
+    member2_id INTEGER NOT NULL REFERENCES users(id),
+
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE posts (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+
+    poster_id INTEGER NOT NULL REFERENCES users(id),
+
+    posted_at TIMESTAMP NOT NULL,
+
+    content TEXT NOT NULL
+);
+
+CREATE TABLE posts_likes (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+
+    liker_id INTEGER NOT NULL REFERENCES users(id),
+    post_id INTEGER NOT NULL REFERENCES posts(id)
 );
