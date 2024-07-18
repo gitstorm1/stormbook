@@ -60,15 +60,24 @@ app.get('/sign-up', async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-    
-    res.end();
+    if (!req.session.user) {
+        return res.send('You are not logged in');
+    }
+
+    res.send(req.session.user);
+
+    // For logging out user
+    req.session.regenerate((err) => {
+        if (!err) return;
+        console.error(error);
+    });
 });
 
 app.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const userData = await db.oneOrNone('SELECT pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
+    const userData = await db.oneOrNone('SELECT id, user_id, pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
 
     if (userData === null) {
         return res.send('No account of the specified email exists');
@@ -79,6 +88,11 @@ app.post('/login', async (req, res) => {
     if (!correctPassword) {
         return res.send('Incorrect password');
     }
+
+    req.session.user = {
+        id: userData.id,
+        user_id: userData.user_id,
+    };
 
     console.log('Logged in successfully');
 
@@ -117,6 +131,11 @@ app.post('/sign-up', async (req, res) => {
     const id = await db.one('INSERT INTO users(user_id, email, pwd_hash, username) VALUES($1, $2, $3, $4) RETURNING id;', [userId, email, pwdHash, username]);
 
     console.log('Created account:', id);
+
+    req.session.user = {
+        id: id,
+        user_id: userId,
+    };
 
     res.redirect('/');
 });
