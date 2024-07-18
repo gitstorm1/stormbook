@@ -60,13 +60,14 @@ app.get('/sign-up', async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-    if (!req.session.user) {
-        return res.send('You are not logged in');
-    }
+    if (!req.session.user) return res.redirect('/login');
 
-    res.send(req.session.user);
+    res.sendFile('home.html', { root: __public });
+});
 
-    // For logging out user
+app.post('/logout', async (req, res) => {
+    if (!req.session.user) return res.end();
+
     req.session.regenerate((err) => {
         if (!err) return;
         console.error(error);
@@ -74,6 +75,8 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+    if (req.session.user) return res.end();
+
     const email = req.body.email;
     const password = req.body.password;
 
@@ -100,6 +103,8 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/sign-up', async (req, res) => {
+    if (req.session.user) return res.end();
+
     const email = req.body.email;
     const password = req.body.password;
     const username = req.body.username;
