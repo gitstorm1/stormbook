@@ -64,14 +64,35 @@ app.get('/', async (req, res) => {
     res.end();
 });
 
+app.post('/login', async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const userData = await db.oneOrNone('SELECT pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
+
+    if (userData === null) {
+        return res.send('No account of the specified email exists');
+    }
+
+    const correctPassword = await bcrypt.compare(password, userData.pwd_hash);
+
+    if (!correctPassword) {
+        return res.send('Incorrect password');
+    }
+
+    console.log('Logged in successfully');
+
+    res.redirect('/');
+});
+
 app.post('/sign-up', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const username = req.body.username;
 
-    const existing = await db.any('SELECT id FROM users WHERE email=$1 LIMIT 1', [email]);
+    const existing = await db.oneOrNone('SELECT id FROM users WHERE email=$1 LIMIT 1', [email]);
     
-    if (existing.length !== 0) {
+    if (existing !== null) {
         return res.send('An account already exists of the specified email');
     }
 
@@ -95,7 +116,7 @@ app.post('/sign-up', async (req, res) => {
 
     const id = await db.one('INSERT INTO users(user_id, email, pwd_hash, username) VALUES($1, $2, $3, $4) RETURNING id;', [userId, email, pwdHash, username]);
 
-    console.log(id);
+    console.log('Created account:', id);
 
     res.redirect('/');
 });
