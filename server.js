@@ -6,7 +6,9 @@ import express from 'express';
 import PGP from 'pg-promise';
 import expressSession from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+
 import bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -67,7 +69,7 @@ app.post('/sign-up', async (req, res) => {
     const password = req.body.password;
     const username = req.body.username;
 
-    const existing = await db.any('SELECT id FROM users WHERE email=$1 LIMIT 1', email);
+    const existing = await db.any('SELECT id FROM users WHERE email=$1 LIMIT 1', [email]);
     
     if (existing.length !== 0) {
         return res.send('An account already exists of the specified email');
@@ -81,9 +83,19 @@ app.post('/sign-up', async (req, res) => {
         return res.send('Username is too short');
     }
 
+    if (username.length > 30) {
+        return res.send('Username is too long');
+    }
+
     const pwdHash = await bcrypt.hash(req.body.password, 10);
 
+    // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 
+    const userId = uuidv4();
+
+    const id = await db.one('INSERT INTO users(user_id, email, pwd_hash, username) VALUES($1, $2, $3, $4) RETURNING id;', [userId, email, pwdHash, username]);
+
+    console.log(id);
 
     res.redirect('/');
 });

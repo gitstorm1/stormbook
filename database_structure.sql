@@ -1,13 +1,13 @@
 CREATE TABLE users (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id CHAR(30) UNIQUE NOT NULL,
+    user_id CHAR(36) UNIQUE NOT NULL,
 
     email VARCHAR(50) UNIQUE NOT NULL,
     pwd_hash CHAR(60) UNIQUE NOT NULL,
 
     username VARCHAR(30) NOT NULL,
 
-    pfp_url TEXT NOT NULL,
+    pfp_url TEXT,
 
     about TEXT
 );
