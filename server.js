@@ -109,10 +109,18 @@ app.post('/sign-up', async (req, res) => {
     const password = req.body.password;
     const username = req.body.username;
 
+    if (email.length < 3) {
+        return res.send('Email is too short');
+    }
+
     const existing = await db.oneOrNone('SELECT id FROM users WHERE email=$1 LIMIT 1', [email]);
     
     if (existing !== null) {
         return res.send('An account already exists of the specified email');
+    }
+
+    if (email.length > 254) {
+        return res.send('Email is too long');
     }
 
     if (password.length < 8) {
@@ -123,7 +131,7 @@ app.post('/sign-up', async (req, res) => {
         return res.send('Username is too short');
     }
 
-    if (username.length > 30) {
+    if (username.length > 36) {
         return res.send('Username is too long');
     }
 
@@ -132,13 +140,14 @@ app.post('/sign-up', async (req, res) => {
     // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 
     const userId = uuidv4();
+    const createdAt = (Date.now() / 1000.0);
 
-    const id = await db.one('INSERT INTO users(user_id, email, pwd_hash, username) VALUES($1, $2, $3, $4) RETURNING id;', [userId, email, pwdHash, username]);
+    const result = await db.one('INSERT INTO users(user_id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, TO_TIMESTAMP($4), $5) RETURNING id;', [userId, email, pwdHash, createdAt, username]);
 
-    console.log('Created account:', id);
+    console.log('Created account:', result.id);
 
     req.session.user = {
-        id: id,
+        id: result.id,
         user_id: userId,
     };
 
