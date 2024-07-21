@@ -1,3 +1,5 @@
+"use strict";
+
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -108,6 +110,8 @@ app.post('/sign-up', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const username = req.body.username;
+
+    // TO-DO: Add validation for email and username fields.
 
     if (email.length < 3) {
         return res.send('Email is too short');
