@@ -45,12 +45,12 @@ export default async function (req, res) {
     const userId = uuidv4();
     const createdAt = (Date.now() / 1000.0);
 
-    const result = await db.one('INSERT INTO users(user_id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, TO_TIMESTAMP($4), $5) RETURNING id;', [userId, email, pwdHash, createdAt, username]);
+    const queryResult = await db.one('INSERT INTO users(user_id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, TO_TIMESTAMP($4), $5) RETURNING id;', [userId, email, pwdHash, createdAt, username]);
 
-    console.log('Created account:', result.id);
+    console.log('Created account:', queryResult.id);
 
     req.session.user = {
-        id: result.id,
+        id: queryResult.id,
         user_id: userId,
     };
 
