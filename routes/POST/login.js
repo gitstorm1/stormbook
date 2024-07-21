@@ -1,3 +1,7 @@
+import { db } from '../../db.js';
+
+import bcrypt from 'bcrypt';
+
 export default async function (req, res) {
     if (req.session.user) return res.end();
 
