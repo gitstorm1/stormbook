@@ -4,8 +4,7 @@ import * as test from '../interface.js';
 
 console.log('Script loaded.');
 
-for (const property in test) {
-    console.log('----------------------');
-    console.log(property, ':', test[property]());
-    console.log('----------------------');
-}
+console.log(test.userId);
+console.log(await test.getUsername());
+console.log(await test.getAbout());
+console.log(await test.getPfpUrl());

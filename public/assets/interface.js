@@ -1,17 +1,32 @@
 "use strict";
 
-export function getUsername() {
-    return 'USERNAME';
+export const userId = await (await fetch('/api/my-user-id')).text();
+
+async function getField(field) {
+    try {
+        const response = await fetch(`/api/users/${userId}/${field}`);
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        return await response.text();
+
+    } catch(err) {
+        console.error(err);
+        return 'ERROR';
+    }
 }
 
-export function getProfilePicture() {
-    console.log('Returning default profile picture');
-    return 'https://i.sstatic.net/l60Hf.png';
+export function getUsername() {
+    return getField('username');
+}
+
+export function getPfpUrl() {
+    return getField('pfp_url');
 }
 
 export function getAbout() {
-    console.log('Returning about section text');
-    return 'ABOUT TEXT';
+    return getField('about');
 }
 
 export function getFeedGroup(before = new Date()) {
