@@ -33,20 +33,18 @@ app.use(
     })
 );
 
-(async () => {
-    app.use('/api', (await import('./routes/GET/api/api.js')).default);
+app.use('/api', (await import('./routes/GET/api/api.js')).default);
 
-    app.get('/sign-up', (await import('./routes/GET/sign-up.js')).default);
-    app.post('/sign-up', (await import('./routes/POST/sign-up.js')).default);
+app.get('/sign-up', (await import('./routes/GET/sign-up.js')).default);
+app.post('/sign-up', (await import('./routes/POST/sign-up.js')).default);
 
-    app.get('/login', (await import('./routes/GET/login.js')).default);
-    app.post('/login', (await import('./routes/POST/login.js')).default);
+app.get('/login', (await import('./routes/GET/login.js')).default);
+app.post('/login', (await import('./routes/POST/login.js')).default);
 
-    app.post('/logout', (await import('./routes/POST/logout.js')).default);
+app.post('/logout', (await import('./routes/POST/logout.js')).default);
 
-    app.get('/', (await import('./routes/GET/root.js')).default);
+app.get('/', (await import('./routes/GET/root.js')).default);
 
-    app.listen(process.env.PORT, 'localhost', () => {
-        console.log(`The server is now listening at port ${process.env.PORT}`);
-    });
-})();
+app.listen(process.env.PORT, 'localhost', () => {
+    console.log(`The server is now listening at port ${process.env.PORT}`);
+});
