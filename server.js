@@ -45,8 +45,8 @@ app.use(
     app.post('/logout', (await import('./routes/POST/logout.js')).default);
 
     app.get('/', (await import('./routes/GET/root.js')).default);
-})();
 
-app.listen(process.env.PORT, 'localhost', () => {
-    console.log(`The server is now listening at port ${process.env.PORT}`);
-});
+    app.listen(process.env.PORT, 'localhost', () => {
+        console.log(`The server is now listening at port ${process.env.PORT}`);
+    });
+})();
