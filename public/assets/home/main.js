@@ -8,3 +8,4 @@ console.log(test.userId);
 console.log(await test.getUsername());
 console.log(await test.getAbout());
 console.log(await test.getPfpUrl());
+console.log(await test.getFriendsList());

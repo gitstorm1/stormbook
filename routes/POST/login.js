@@ -8,7 +8,7 @@ export default async function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
 
-    const queryResult = await db.oneOrNone('SELECT id, user_id, pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
+    const queryResult = await db.oneOrNone('SELECT id, pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
 
     if (queryResult === null) {
         return res.send('No account of the specified email exists');
@@ -22,7 +22,6 @@ export default async function (req, res) {
 
     req.session.user = {
         id: queryResult.id,
-        user_id: queryResult.user_id,
     };
 
     console.log('Logged in successfully');

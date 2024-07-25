@@ -4,7 +4,7 @@ const apiRouter = express.Router();
 
 apiRouter.get('/my-user-id', async (req, res) => {
     if (!req.session.user) return res.end();
-    res.send(req.session.user.user_id);
+    res.send(req.session.user.id);
 });
 
 apiRouter.use('/users', (await import('./users.js')).default);

@@ -2,15 +2,13 @@
 
 export const userId = await (await fetch('/api/my-user-id')).text();
 
-async function getField(field) {
+async function getUserField(field) {
     try {
         const response = await fetch(`/api/users/${userId}/${field}`);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-
         return await response.text();
-
     } catch(err) {
         console.error(err);
         return 'ERROR';
@@ -18,15 +16,15 @@ async function getField(field) {
 }
 
 export function getUsername() {
-    return getField('username');
+    return getUserField('username');
 }
 
 export function getPfpUrl() {
-    return getField('pfp_url');
+    return getUserField('pfp_url');
 }
 
 export function getAbout() {
-    return getField('about');
+    return getUserField('about');
 }
 
 export function getFeedGroup(before = new Date()) {
@@ -34,7 +32,15 @@ export function getFeedGroup(before = new Date()) {
     return [];
 }
 
-export function getFriendsList() {
-    console.log('Return friends list');
-    return [];
+export async function getFriendsList() {
+    try {
+        const response = await fetch(`/api/users/${userId}/friends-list`);
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch(err) {
+        console.error(err);
+        return [];
+    }
 }

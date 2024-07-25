@@ -1,6 +1,5 @@
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id TEXT UNIQUE NOT NULL,
+    id TEXT PRIMARY KEY,
 
     email TEXT UNIQUE NOT NULL,
     pwd_hash TEXT UNIQUE NOT NULL,
@@ -17,8 +16,8 @@ CREATE TABLE users (
 CREATE TABLE friendships (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 
-    member1_id INTEGER NOT NULL REFERENCES users(id),
-    member2_id INTEGER NOT NULL REFERENCES users(id),
+    member1_id TEXT NOT NULL REFERENCES users(id),
+    member2_id TEXT NOT NULL REFERENCES users(id),
 
     created_at TIMESTAMPTZ NOT NULL
 );
@@ -26,7 +25,7 @@ CREATE TABLE friendships (
 CREATE TABLE posts (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 
-    poster_id INTEGER NOT NULL REFERENCES users(id),
+    poster_id TEXT NOT NULL REFERENCES users(id),
 
     posted_at TIMESTAMPTZ NOT NULL,
 
@@ -36,6 +35,6 @@ CREATE TABLE posts (
 CREATE TABLE posts_likes (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 
-    liker_id INTEGER NOT NULL REFERENCES users(id),
+    liker_id TEXT NOT NULL REFERENCES users(id),
     post_id INTEGER NOT NULL REFERENCES posts(id)
 );

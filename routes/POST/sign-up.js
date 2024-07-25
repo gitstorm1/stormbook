@@ -43,15 +43,13 @@ export default async function (req, res) {
     // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 
     const userId = uuidv4();
-    const createdAt = (Date.now() / 1000.0);
 
-    const queryResult = await db.one('INSERT INTO users(user_id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, TO_TIMESTAMP($4), $5) RETURNING id;', [userId, email, pwdHash, createdAt, username]);
+    const queryResult = await db.one('INSERT INTO users(id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, current_timestamp, $4) RETURNING id;', [userId, email, pwdHash, username]);
 
     console.log('Created account:', queryResult.id);
 
     req.session.user = {
         id: queryResult.id,
-        user_id: userId,
     };
 
     res.redirect('/');
