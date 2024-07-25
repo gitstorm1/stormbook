@@ -40,7 +40,14 @@ usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
 
     const queryResult = await db.manyOrNone('SELECT sender_id, sent_at FROM friend_requests WHERE receiver_id=$1;', req.session.user.id);
 
-    res.send(queryResult);
+    const incomingFriendRequests = queryResult.map((row) => {
+        return {
+            senderId: row.sender_id,
+            sentAt: row.sent_at,
+        };
+    });
+
+    res.send(incomingFriendRequests);
 });
 
 usersRouter.get('/:userId/friend-requests/outgoing', async (req, res) => {
@@ -48,7 +55,14 @@ usersRouter.get('/:userId/friend-requests/outgoing', async (req, res) => {
 
     const queryResult = await db.manyOrNone('SELECT receiver_id, sent_at FROM friend_requests WHERE sender_id=$1;', req.session.user.id);
 
-    res.send(queryResult);
+    const outgoingFriendRequests = queryResult.map((row) => {
+        return {
+            receiverId: row.receiver_id,
+            sentAt: row.sent_at,
+        };
+    });
+
+    res.send(outgoingFriendRequests);
 });
 
 export default usersRouter;
