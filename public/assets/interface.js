@@ -57,3 +57,16 @@ export async function getIncomingFriendRequests() {
         return [];
     }
 }
+
+export async function getOutgoingFriendRequests() {
+    try {
+        const response = await fetch(`/api/users/${userId}/friend-requests/outgoing`);
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch(err) {
+        console.error(err);
+        return [];
+    }
+}

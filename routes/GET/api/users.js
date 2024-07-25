@@ -43,4 +43,12 @@ usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
     res.send(queryResult);
 });
 
+usersRouter.get('/:userId/friend-requests/outgoing', async (req, res) => {
+    if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.end();
+
+    const queryResult = await db.manyOrNone('SELECT receiver_id, sent_at FROM friend_requests WHERE sender_id=$1;', req.session.user.id);
+
+    res.send(queryResult);
+});
+
 export default usersRouter;
