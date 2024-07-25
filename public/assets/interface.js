@@ -46,8 +46,8 @@ export async function getFriendsList() {
 }
 
 export async function getIncomingFriendRequests() {
-    /*try {
-        const response = await fetch(`/api/users/${userId}/friendships`);
+    try {
+        const response = await fetch(`/api/users/${userId}/friend-requests/incoming`);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -55,6 +55,5 @@ export async function getIncomingFriendRequests() {
     } catch(err) {
         console.error(err);
         return [];
-    }*/
-   return 'Not Implemented';
+    }
 }
