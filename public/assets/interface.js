@@ -32,9 +32,9 @@ export function getFeedGroup(before = new Date()) {
     return [];
 }
 
-export async function getFriendsList() {
+export async function getFriendships() {
     try {
-        const response = await fetch(`/api/users/${userId}/friends-list`);
+        const response = await fetch(`/api/users/${userId}/friendships`);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
