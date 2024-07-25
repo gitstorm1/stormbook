@@ -16,10 +16,19 @@ CREATE TABLE users (
 CREATE TABLE friendships (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 
-    member1_id TEXT NOT NULL REFERENCES users(id),
-    member2_id TEXT NOT NULL REFERENCES users(id),
+    user1_id TEXT NOT NULL REFERENCES users(id),
+    user2_id TEXT NOT NULL REFERENCES users(id),
 
     created_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE friend_requests (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+
+    sender_id TEXT NOT NULL REFERENCES users(id),
+    receiver_id TEXT NOT NULL REFERENCES users(id),
+
+    sent_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE posts (

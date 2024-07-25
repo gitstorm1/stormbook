@@ -20,19 +20,23 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
     res.send(queryResult[field]);
 });
 
-usersRouter.get('/:userId/friendships', async (req, res) => {
+usersRouter.get('/:userId/friends-list', async (req, res) => {
     if (!req.session.user) return res.end();
 
-    const queryResult = await db.manyOrNone('SELECT member1_id, member2_id, created_at FROM friendships WHERE (member1_id=$1 OR member2_id=$1);', req.params.userId);
+    const queryResult = await db.manyOrNone('SELECT user1_id, user2_id, created_at FROM friendships WHERE (user1_id=$1 OR user2_id=$1);', req.params.userId);
 
     const friendsList = queryResult.map((row) => {
         return {
-            friendId: ((row.member1_id === req.params.userId) ? row.member2_id : row.member1_id),
+            friendId: ((row.user1_id === req.params.userId) ? row.user2_id : row.user1_id),
             createdAt: row.created_at,
         };
     });
 
     res.send(friendsList);
+});
+
+usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
+
 });
 
 export default usersRouter

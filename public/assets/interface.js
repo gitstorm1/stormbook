@@ -32,9 +32,9 @@ export function getFeedGroup(before = new Date()) {
     return [];
 }
 
-export async function getFriendships() {
+export async function getFriendsList() {
     try {
-        const response = await fetch(`/api/users/${userId}/friendships`);
+        const response = await fetch(`/api/users/${userId}/friends-list`);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -43,4 +43,18 @@ export async function getFriendships() {
         console.error(err);
         return [];
     }
+}
+
+export async function getIncomingFriendRequests() {
+    /*try {
+        const response = await fetch(`/api/users/${userId}/friendships`);
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch(err) {
+        console.error(err);
+        return [];
+    }*/
+   return 'Not Implemented';
 }
