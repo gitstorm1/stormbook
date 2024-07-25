@@ -9,4 +9,4 @@ apiRouter.get('/my-user-id', async (req, res) => {
 
 apiRouter.use('/users', (await import('./users.js')).default);
 
-export default apiRouter
+export default apiRouter;

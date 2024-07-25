@@ -43,4 +43,4 @@ usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
     res.send(queryResult);
 });
 
-export default usersRouter
+export default usersRouter;
