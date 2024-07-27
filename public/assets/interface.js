@@ -11,7 +11,7 @@ async function getUserField(field) {
         return await response.text();
     } catch(err) {
         console.error(err);
-        return 'ERROR';
+        return 'Could not fetch';
     }
 }
 
@@ -69,4 +69,34 @@ export async function getOutgoingFriendRequests() {
         console.error(err);
         return [];
     }
+}
+
+export async function sendFriendRequest(targetId) {
+    /*
+    
+    Send POST request with the targetId
+
+    Log error if failed
+
+    */
+}
+
+export async function acceptFriendRequest(senderId) {
+    /*
+    
+    Send POST request with the senderId
+
+    Log error if failed
+
+    */
+}
+
+export async function declineFriendRequest(senderId) {
+    /*
+    
+    Send POST request with the senderId
+
+    Log error if failed
+
+    */
 }
