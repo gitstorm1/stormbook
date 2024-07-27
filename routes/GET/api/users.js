@@ -14,7 +14,7 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
     const field = req.params.field;
     if (!allowedFields.includes(field)) return next();
 
-    const queryResult = await db.oneOrNone(`SELECT ${field} FROM users WHERE id=$1 LIMIT 1;`, req.params.userId);
+    const queryResult = await db.oneOrNone(`SELECT ${field} FROM users WHERE id=$1 LIMIT 1;`, [req.params.userId]);
     if (!queryResult) return res.end();
 
     res.send(queryResult[field]);
@@ -23,14 +23,22 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
 usersRouter.get('/:userId/friends-list', async (req, res) => {
     if (!req.session.user) return res.end();
 
-    const queryResult = await db.manyOrNone('SELECT user1_id, user2_id, created_at FROM friendships WHERE (user1_id=$1 OR user2_id=$1);', req.params.userId);
+    const queryResult = await db.manyOrNone('SELECT user1_id, user2_id, created_at FROM friendships WHERE (user1_id=$1 OR user2_id=$1);', [req.params.userId]);
 
-    const friendsList = queryResult.map((row) => {
-        return {
-            friendId: ((row.user1_id === req.params.userId) ? row.user2_id : row.user1_id),
+    const friendsList = [];
+
+    for (const row of queryResult) {
+        const friendId = ((row.user1_id === req.params.userId) ? row.user2_id : row.user1_id);
+
+        const userInfoQuery = await db.one('SELECT username, pfp_url FROM users WHERE id=$1', [friendId]);
+
+        friendsList.push({
+            friendId: friendId,
             createdAt: row.created_at,
-        };
-    });
+            username: userInfoQuery.username,
+            pfpUrl: userInfoQuery.pfp_url,
+        });
+    }
 
     res.send(friendsList);
 });
@@ -38,14 +46,19 @@ usersRouter.get('/:userId/friends-list', async (req, res) => {
 usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
     if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.end();
 
-    const queryResult = await db.manyOrNone('SELECT sender_id, sent_at FROM friend_requests WHERE receiver_id=$1;', req.session.user.id);
+    const queryResult = await db.manyOrNone('SELECT sender_id, sent_at FROM friend_requests WHERE receiver_id=$1;', [req.session.user.id]);
 
-    const incomingFriendRequests = queryResult.map((row) => {
-        return {
+    const incomingFriendRequests = [];
+
+    for (const row of queryResult) {
+        const userInfoQuery = await db.one('SELECT username, pfp_url FROM users WHERE id=$1', [row.sender_id]);
+        incomingFriendRequests.push({
             senderId: row.sender_id,
             sentAt: row.sent_at,
-        };
-    });
+            username: userInfoQuery.username,
+            pfpUrl: userInfoQuery.pfp_url,
+        });
+    }
 
     res.send(incomingFriendRequests);
 });
@@ -53,14 +66,19 @@ usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
 usersRouter.get('/:userId/friend-requests/outgoing', async (req, res) => {
     if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.end();
 
-    const queryResult = await db.manyOrNone('SELECT receiver_id, sent_at FROM friend_requests WHERE sender_id=$1;', req.session.user.id);
+    const queryResult = await db.manyOrNone('SELECT receiver_id, sent_at FROM friend_requests WHERE sender_id=$1;', [req.session.user.id]);
 
-    const outgoingFriendRequests = queryResult.map((row) => {
-        return {
+    const outgoingFriendRequests = [];
+
+    for (const row of queryResult) {
+        const userInfoQuery = await db.one('SELECT username, pfp_url FROM users WHERE id=$1', [row.receiver_id]);
+        outgoingFriendRequests.push({
             receiverId: row.receiver_id,
             sentAt: row.sent_at,
-        };
-    });
+            username: userInfoQuery.username,
+            pfpUrl: userInfoQuery.pfp_url,
+        });
+    }
 
     res.send(outgoingFriendRequests);
 });
