@@ -1,7 +1,6 @@
 import { db } from '../../db.js';
 
 import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 
 export default async function (req, res) {
     if (req.session.user) return res.end();
@@ -42,9 +41,7 @@ export default async function (req, res) {
 
     // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 
-    const userId = uuidv4();
-
-    const queryResult = await db.one('INSERT INTO users(id, email, pwd_hash, created_at, username) VALUES($1, $2, $3, current_timestamp, $4) RETURNING id;', [userId, email, pwdHash, username]);
+    const queryResult = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [email, pwdHash, username]);
 
     console.log('Created account:', queryResult.id);
 
