@@ -34,6 +34,7 @@ app.use(
 );
 
 app.use('/api', (await import('./routes/GET/api/api.js')).default);
+app.use('/api', (await import('./routes/POST/api.js')).default);
 
 app.get('/sign-up', (await import('./routes/GET/sign-up.js')).default);
 app.post('/sign-up', (await import('./routes/POST/sign-up.js')).default);

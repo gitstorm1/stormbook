@@ -14,7 +14,14 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
     const field = req.params.field;
     if (!allowedFields.includes(field)) return next();
 
-    const queryResult = await db.oneOrNone(`SELECT ${field} FROM users WHERE id=$1 LIMIT 1;`, [req.params.userId]);
+    let queryResult;
+
+    try {
+        queryResult = await db.oneOrNone(`SELECT ${field} FROM users WHERE id=$1 LIMIT 1;`, [req.params.userId]);
+    } catch (err) {
+        return res.status(400).end();
+    }
+
     if (!queryResult) return res.end();
 
     res.send(queryResult[field]);
@@ -23,7 +30,13 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
 usersRouter.get('/:userId/friends-list', async (req, res) => {
     if (!req.session.user) return res.end();
 
-    const queryResult = await db.manyOrNone('SELECT user1_id, user2_id, created_at FROM friendships WHERE (user1_id=$1 OR user2_id=$1);', [req.params.userId]);
+    let queryResult;
+    
+    try {
+        queryResult = await db.manyOrNone('SELECT user1_id, user2_id, created_at FROM friendships WHERE (user1_id=$1 OR user2_id=$1);', [req.params.userId]);
+    } catch (err) {
+        return res.status(400).end();
+    }
 
     const friendsList = [];
 

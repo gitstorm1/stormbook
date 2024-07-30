@@ -76,9 +76,28 @@ export async function sendFriendRequest(targetId) {
     
     Send POST request with the targetId
 
-    Log error if failed
+    Log any errors
 
     */
+
+    try {
+        const response = await fetch(
+            `/api/send-friend-request`,
+            {
+                method: 'POST',
+                body: JSON.stringify({targetId: targetId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        console.log('Request friend-request completed for target ID:', targetId);
+    } catch(err) {
+        console.error(err);
+    }
 }
 
 export async function acceptFriendRequest(senderId) {
@@ -86,7 +105,7 @@ export async function acceptFriendRequest(senderId) {
     
     Send POST request with the senderId
 
-    Log error if failed
+    Log any errors
 
     */
 }
@@ -96,7 +115,7 @@ export async function declineFriendRequest(senderId) {
     
     Send POST request with the senderId
 
-    Log error if failed
+    Log any errors
 
     */
 }

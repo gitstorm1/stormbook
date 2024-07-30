@@ -19,6 +19,37 @@ apiRouter.post('/send-friend-request', async (req, res) => {
     Respond with success
 
     */
+    
+    if (!req.session.user) return res.end();
+
+    const targetId = req.body.targetId;
+
+    if ((!targetId) || (targetId === req.session.user.id)) return res.status(400).end();
+
+    try {
+        const queryResult = await db.oneOrNone(
+            'SELECT id FROM friend_requests WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1)) LIMIT 1;',
+            [req.session.user.id, targetId,]
+        );
+        if (queryResult) return res.status(400).end();
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    try {
+        await db.none(
+            'INSERT INTO friend_requests(sender_id, receiver_id) VALUES($1, $2);',
+            [req.session.user.id, targetId,]
+        );
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    console.log(`Sent friend request successfully of user ${req.session.user.id} to ${targetId}`);
+    
+    res.end();
 });
 
 apiRouter.post('/accept-friend-request', async (req, res) => {
