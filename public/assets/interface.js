@@ -137,4 +137,23 @@ export async function declineFriendRequest(senderId) {
     Log any errors
 
     */
+
+    try {
+        const response = await fetch(
+            `/api/decline-friend-request`,
+            {
+                method: 'POST',
+                body: JSON.stringify({senderId: senderId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        console.log('Decline friend-request completed for sender ID:', senderId);
+    } catch(err) {
+        console.error(err);
+    }
 }

@@ -128,6 +128,34 @@ apiRouter.post('/decline-friend-request', async (req, res) => {
     Respond with success
 
     */
+
+    if (!req.session.user) return res.status(401).end();
+
+    const senderId = req.body.senderId;
+
+    if ((!senderId) || (senderId === req.session.user.id)) return res.status(400).end();
+
+    let queryResult;
+
+    try {
+        queryResult = await db.oneOrNone(
+            'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
+            [req.session.user.id, senderId,]
+        );
+        if (!queryResult) return res.status(400).end();
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    await db.none(
+        'DELETE FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
+        [req.session.user.id, senderId,],
+    );
+
+    console.log(`User ${req.session.user.id} declined the friend request of user ${senderId}`);
+
+    res.end();
 });
 
 export default apiRouter;
