@@ -9,7 +9,7 @@ const allowedFields = [
 ];
 
 usersRouter.get('/:userId/:field', async (req, res, next) => {
-    if (!req.session.user) return res.end();
+    if (!req.session.user) return res.status(401).end();
 
     const field = req.params.field;
     if (!allowedFields.includes(field)) return next();
@@ -28,7 +28,7 @@ usersRouter.get('/:userId/:field', async (req, res, next) => {
 });
 
 usersRouter.get('/:userId/friends-list', async (req, res) => {
-    if (!req.session.user) return res.end();
+    if (!req.session.user) return res.status(401).end();
 
     let queryResult;
     
@@ -57,7 +57,7 @@ usersRouter.get('/:userId/friends-list', async (req, res) => {
 });
 
 usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
-    if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.end();
+    if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.status(401).end();
 
     const queryResult = await db.manyOrNone('SELECT sender_id, sent_at FROM friend_requests WHERE receiver_id=$1;', [req.session.user.id]);
 
@@ -77,7 +77,7 @@ usersRouter.get('/:userId/friend-requests/incoming', async (req, res) => {
 });
 
 usersRouter.get('/:userId/friend-requests/outgoing', async (req, res) => {
-    if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.end();
+    if ((!req.session.user) || ((req.params.userId !== req.session.user.id))) return res.status(401).end();
 
     const queryResult = await db.manyOrNone('SELECT receiver_id, sent_at FROM friend_requests WHERE sender_id=$1;', [req.session.user.id]);
 

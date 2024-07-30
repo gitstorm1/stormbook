@@ -20,7 +20,7 @@ apiRouter.post('/send-friend-request', async (req, res) => {
 
     */
     
-    if (!req.session.user) return res.end();
+    if (!req.session.user) return res.status(401).end();
 
     const targetId = req.body.targetId;
 

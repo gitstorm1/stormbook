@@ -3,7 +3,7 @@ import { db } from '../../db.js';
 import bcrypt from 'bcrypt';
 
 export default async function (req, res) {
-    if (req.session.user) return res.end();
+    if (req.session.user) return res.status(400).end();
 
     const email = req.body.email;
     const password = req.body.password;
