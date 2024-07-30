@@ -154,4 +154,39 @@ apiRouter.post('/decline-friend-request', async (req, res) => {
     res.end();
 });
 
+apiRouter.post('/create-post', async (req, res) => {
+    if (!req.session.user) return res.status(401).end();
+
+    /*
+    
+    Validation
+        Content is provided
+        Content is at least 8 characters
+        Respond with failure if not valid
+    
+    Add to database
+        Add to posts table with contents field
+    
+    Respond with success
+
+    */
+
+    const content = req.body.content;
+    if ((!content) || (content.length < 8)) return res.status(400).end();
+
+    try {
+        await db.none(
+            'INSERT INTO posts(poster_id, content) VALUES($1, $2);',
+            [req.session.user.id, content]
+        );
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    console.log(`User ${req.session.user.id} created a post with content: ${content}`);
+
+    res.end();
+});
+
 export default apiRouter;

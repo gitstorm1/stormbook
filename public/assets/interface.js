@@ -157,3 +157,31 @@ export async function declineFriendRequest(senderId) {
         console.error(err);
     }
 }
+
+export async function createPost(content) {
+    if ((!content) || (content.length < 8)) return false;
+
+    try {
+        const response = await fetch(
+            `/api/create-post`,
+            {
+                method: 'POST',
+                body: JSON.stringify({content: content}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        console.log('Created a post with content:', content);
+
+        return true;
+    } catch(err) {
+        console.error(err);
+        return false;
+    }
+}
