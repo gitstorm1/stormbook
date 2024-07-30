@@ -108,6 +108,25 @@ export async function acceptFriendRequest(senderId) {
     Log any errors
 
     */
+
+    try {
+        const response = await fetch(
+            `/api/accept-friend-request`,
+            {
+                method: 'POST',
+                body: JSON.stringify({senderId: senderId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        console.log('Accept friend-request completed for sender ID:', senderId);
+    } catch(err) {
+        console.error(err);
+    }
 }
 
 export async function declineFriendRequest(senderId) {

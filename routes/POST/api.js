@@ -28,7 +28,18 @@ apiRouter.post('/send-friend-request', async (req, res) => {
 
     try {
         const queryResult = await db.oneOrNone(
-            'SELECT id FROM friend_requests WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1)) LIMIT 1;',
+            'SELECT id FROM friendships WHERE ((user1_id=$1 AND user2_id=$2) OR (user1_id=$2 AND user2_id=$1));',
+            [req.session.user.id, targetId,]
+        );
+        if (queryResult) return res.status(400).end();
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    try {
+        const queryResult = await db.oneOrNone(
+            'SELECT id FROM friend_requests WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1));',
             [req.session.user.id, targetId,]
         );
         if (queryResult) return res.status(400).end();
@@ -70,6 +81,39 @@ apiRouter.post('/accept-friend-request', async (req, res) => {
     Respond with success
 
     */
+
+    if (!req.session.user) return res.status(401).end();
+
+    const senderId = req.body.senderId;
+
+    if ((!senderId) || (senderId === req.session.user.id)) return res.status(400).end();
+
+    let queryResult;
+
+    try {
+        queryResult = await db.oneOrNone(
+            'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
+            [req.session.user.id, senderId,]
+        );
+        if (!queryResult) return res.status(400).end();
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    await db.none(
+        'INSERT INTO friendships(user1_id, user2_id) VALUES($1, $2);',
+        [req.session.user.id, senderId,]
+    );
+
+    await db.none(
+        'DELETE FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
+        [req.session.user.id, senderId,],
+    );
+
+    console.log(`User ${req.session.user.id} accepted the friend request of user ${senderId}`);
+
+    res.end();
 });
 
 apiRouter.post('/decline-friend-request', async (req, res) => {
