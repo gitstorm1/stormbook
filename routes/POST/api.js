@@ -88,10 +88,8 @@ apiRouter.post('/accept-friend-request', async (req, res) => {
 
     if ((!senderId) || (senderId === req.session.user.id)) return res.status(400).end();
 
-    let queryResult;
-
     try {
-        queryResult = await db.oneOrNone(
+        const queryResult = await db.oneOrNone(
             'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
             [req.session.user.id, senderId,]
         );
@@ -135,10 +133,8 @@ apiRouter.post('/decline-friend-request', async (req, res) => {
 
     if ((!senderId) || (senderId === req.session.user.id)) return res.status(400).end();
 
-    let queryResult;
-
     try {
-        queryResult = await db.oneOrNone(
+        const queryResult = await db.oneOrNone(
             'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
             [req.session.user.id, senderId,]
         );
