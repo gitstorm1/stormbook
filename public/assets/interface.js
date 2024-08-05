@@ -95,8 +95,10 @@ export async function sendFriendRequest(targetId) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         console.log('Request friend-request completed for target ID:', targetId);
+        return true;
     } catch(err) {
         console.error(err);
+        return false;
     }
 }
 
@@ -124,8 +126,10 @@ export async function acceptFriendRequest(senderId) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         console.log('Accept friend-request completed for sender ID:', senderId);
+        return true;
     } catch(err) {
         console.error(err);
+        return false;
     }
 }
 
@@ -153,8 +157,10 @@ export async function declineFriendRequest(senderId) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         console.log('Decline friend-request completed for sender ID:', senderId);
+        return true;
     } catch(err) {
         console.error(err);
+        return false;
     }
 }
 
@@ -178,6 +184,58 @@ export async function createPost(content) {
         }
 
         console.log('Created a post with content:', content);
+
+        return true;
+    } catch(err) {
+        console.error(err);
+        return false;
+    }
+}
+
+export async function deletePost(postId) {
+    try {
+        const response = await fetch(
+            `/api/delete-post`,
+            {
+                method: 'POST',
+                body: JSON.stringify({postId: postId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        console.log('Deleted the post of ID:', postId);
+
+        return true;
+    } catch(err) {
+        console.error(err);
+        return false;
+    }
+}
+
+export async function likeUnlikePostToggle(postId) {
+    try {
+        const response = await fetch(
+            `/api/like-unlike-post-toggle`,
+            {
+                method: 'POST',
+                body: JSON.stringify({postId: postId}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        console.log('Changed the like status of post:', postId);
 
         return true;
     } catch(err) {

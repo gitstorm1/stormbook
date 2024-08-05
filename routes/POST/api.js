@@ -199,29 +199,38 @@ apiRouter.post('/delete-post', async (req, res) => {
         If found then delete  
     */
 
-    if ((!req.params.postId) || (typeof req.params.postId !== 'number')) return res.status(400).end();
+    const postId = req.body.postId;
 
-    const queryResult = db.oneOrNone(
+    if ((!postId) || (typeof postId !== 'number')) return res.status(400).end();
+
+    const queryResult = await db.oneOrNone(
         'SELECT id FROM posts WHERE (id=$1 AND poster_id=$2);',
-        [req.params.postId, req.session.user.id],
+        [postId, req.session.user.id],
     );
 
-    if (queryResult) {
-        await db.none(
-            'DELETE FROM posts WHERE id=$1;',
-            [req.params.postId],
-        );
+    if (!queryResult) return res.status(400).end();
 
-        console.log(`Successfully deleted post ${req.params.postId} of user ${req.session.user.id}`);
-    }
+    await db.none(
+        'DELETE FROM posts_likes WHERE post_id=$1;',
+        [postId],
+    );
+
+    await db.none(
+        'DELETE FROM posts WHERE id=$1;',
+        [postId],
+    );
+
+    console.log(`Successfully deleted post ${postId} of user ${req.session.user.id}`);
 
     res.end();
 });
 
-apiRouter.post('/like-post-toggle', async (req, res) => {
+apiRouter.post('/like-unlike-post-toggle', async (req, res) => {
     if (!req.session.user) return res.status(401).end();
 
-    if ((!req.params.postId) || (typeof req.params.postId !== 'number')) return res.status(400).end();
+    const postId = req.body.postId;
+
+    if ((!postId) || (typeof postId !== 'number')) return res.status(400).end();
 
     /*
         WHERE TO CONTINUE: INTERFACE FOR THESE TWO FUNCTIONS ON CLIENT AND FINISH THIS ONE
@@ -235,18 +244,18 @@ apiRouter.post('/like-post-toggle', async (req, res) => {
     
     */
 
-    const queryResult = db.oneOrNone(
+    const queryResult = await db.oneOrNone(
         'SELECT id FROM posts_likes WHERE (post_id=$1 AND liker_id=$2);',
-        [req.params.postId, req.session.user.id,],
+        [postId, req.session.user.id,],
     );
 
     if (queryResult) {
-        db.none(
+        await db.none(
             'DELETE FROM posts_likes WHERE id=$1;',
             [queryResult.id],
         );
 
-        console.log(`User ${req.session.user.id} unliked post ${req.params.postId}`);
+        console.log(`User ${req.session.user.id} unliked post ${postId}`);
 
         return res.end();
     }
@@ -254,14 +263,14 @@ apiRouter.post('/like-post-toggle', async (req, res) => {
     try {
         await db.none(
             'INSERT INTO posts_likes(liker_id, post_id) VALUES($1, $2);',
-            [req.session.user.id, req.params.postId,]
+            [req.session.user.id, postId,]
         );
     } catch(err) {
         console.error(err);
         return res.status(400).end();
     }
 
-    console.log(`User ${req.session.user.id} liked post ${req.params.postId}`);
+    console.log(`User ${req.session.user.id} liked post ${postId}`);
 
     res.end();
 });
