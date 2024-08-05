@@ -189,4 +189,41 @@ apiRouter.post('/create-post', async (req, res) => {
     res.end();
 });
 
+apiRouter.post('/delete-post', async (req, res) => {
+    if (!req.session.user) return res.status(401).end();
+
+    /*
+        Post id
+        Check if post id and poster id match
+        Result should be one or none
+        If found then delete  
+    */
+
+    if ((!req.params.postId) || (typeof req.params.postId !== 'number')) return res.status(400).end();
+
+    const queryResult = db.oneOrNone(
+        'SELECT id FROM posts WHERE (id=$1 AND poster_id=$2);',
+        [req.params.postId, req.session.user.id],
+    );
+
+    if (queryResult) {
+        await db.none(
+            'DELETE FROM posts WHERE id=$1;',
+            [req.params.postId],
+        );
+    }
+
+    res.end();
+});
+
+apiRouter.post('/like-post-toggle', async (req, res) => {
+    if (!req.session.user) return res.status(401).end();
+
+    if ((!req.params.postId) || (typeof req.params.postId !== 'number')) return res.status(400).end();
+
+    /*
+        WHERE TO CONTINUE: INTERFACE FOR THESE TWO FUNCTIONS ON CLIENT AND FINISH THIS ONE
+    */
+});
+
 export default apiRouter;
