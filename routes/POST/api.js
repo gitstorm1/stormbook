@@ -177,7 +177,7 @@ apiRouter.post('/create-post', async (req, res) => {
     try {
         await db.none(
             'INSERT INTO posts(poster_id, content) VALUES($1, $2);',
-            [req.session.user.id, content]
+            [req.session.user.id, content,]
         );
     } catch(err) {
         console.error(err);
@@ -211,6 +211,8 @@ apiRouter.post('/delete-post', async (req, res) => {
             'DELETE FROM posts WHERE id=$1;',
             [req.params.postId],
         );
+
+        console.log(`Successfully deleted post ${req.params.postId} of user ${req.session.user.id}`);
     }
 
     res.end();
@@ -224,6 +226,44 @@ apiRouter.post('/like-post-toggle', async (req, res) => {
     /*
         WHERE TO CONTINUE: INTERFACE FOR THESE TWO FUNCTIONS ON CLIENT AND FINISH THIS ONE
     */
+
+    /*
+
+        Match liker id and post id
+        If found then delete
+        If not found then create (in try catch referential integrity)
+    
+    */
+
+    const queryResult = db.oneOrNone(
+        'SELECT id FROM posts_likes WHERE (post_id=$1 AND liker_id=$2);',
+        [req.params.postId, req.session.user.id,],
+    );
+
+    if (queryResult) {
+        db.none(
+            'DELETE FROM posts_likes WHERE id=$1;',
+            [queryResult.id],
+        );
+
+        console.log(`User ${req.session.user.id} unliked post ${req.params.postId}`);
+
+        return res.end();
+    }
+
+    try {
+        await db.none(
+            'INSERT INTO posts_likes(liker_id, post_id) VALUES($1, $2);',
+            [req.session.user.id, req.params.postId,]
+        );
+    } catch(err) {
+        console.error(err);
+        return res.status(400).end();
+    }
+
+    console.log(`User ${req.session.user.id} liked post ${req.params.postId}`);
+
+    res.end();
 });
 
 export default apiRouter;
