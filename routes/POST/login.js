@@ -5,10 +5,10 @@ import bcrypt from 'bcrypt';
 export default async function (req, res) {
     if (isUserLoggedIn(req)) return res.status(409).end();
 
-    const email = req.body.email;
+    const enteredEmail = req.body.email;
     const enteredPassword = req.body.password;
 
-    const accountIDAndHash = await getAccountIDAndHashFromEmail(email);
+    const accountIDAndHash = await getAccountIDAndHashFromEmail(enteredEmail);
 
     if (accountIDAndHash === null) {
         return res.status(404).send('No account of the specified email exists');
@@ -18,9 +18,7 @@ export default async function (req, res) {
         return res.status(401).send('Incorrect password');
     }
 
-    req.session.user = {
-        id: accountIDAndHash.id,
-    };
+    createSessionUserCache(req, accountIDAndHash.id);
 
     console.log('Logged in successfully');
 
@@ -37,4 +35,10 @@ async function getAccountIDAndHashFromEmail(email) {
 
 async function isEnteredPasswordCorrect(enteredPassword, passwordHash) {
     return await bcrypt.compare(enteredPassword, passwordHash);
+}
+
+function createSessionUserCache(req, userId) {
+    req.session.user = {
+        id: userId
+    };
 }

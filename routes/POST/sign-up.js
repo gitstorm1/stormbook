@@ -5,19 +5,24 @@ import bcrypt from 'bcrypt';
 export default async function (req, res) {
     if (req.session.user) return res.status(400).end();
 
-    const email = req.body.email;
-    const password = req.body.password;
-    const username = req.body.username;
+    const enteredEmail = req.body.email;
+    const enteredPassword = req.body.password;
+    const enteredUsername = req.body.username;
 
     // TO-DO: Add validation for email and username fields.
+
+    // The functions will send a response automatically if validation is unsusccessful
+    if (!validateEmail(email, res)) return;
+
+    if (!validatePassword(email, res)) return;
+
+    if (!validateUsername(email, res)) return;
 
     if (email.length < 3) {
         return res.send('Email is too short');
     }
 
-    const existing = await db.oneOrNone('SELECT id FROM users WHERE email=$1 LIMIT 1', [email]);
-    
-    if (existing !== null) {
+    if (accountExistsOfEmail(enteredEmail)) {
         return res.send('An account already exists of the specified email');
     }
 
@@ -50,4 +55,20 @@ export default async function (req, res) {
     };
 
     res.redirect('/');
+}
+
+async function accountExistsOfEmail(email) {
+    return (await db.oneOrNone('SELECT id FROM users WHERE email=$1 LIMIT 1', [email])) !== null;
+}
+
+function validateEmail(email, res) {
+    return true;
+}
+
+function validatePassword(password, res) {
+    return true;
+}
+
+function validateUsername(username, res) {
+    return true;
 }
