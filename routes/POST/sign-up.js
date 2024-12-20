@@ -1,5 +1,7 @@
 import { db } from '../../db.js';
 
+import { isEmail, isAlphanumeric } from 'validator';
+
 import bcrypt from 'bcrypt';
 
 export default async function (req, res) {
@@ -9,44 +11,22 @@ export default async function (req, res) {
     const enteredPassword = req.body.password;
     const enteredUsername = req.body.username;
 
-    // TO-DO: Add validation for email and username fields.
-
     // The functions will send a response automatically if validation is unsusccessful
-    if (!validateEmail(email, res)) return;
-
-    if (!validatePassword(email, res)) return;
-
-    if (!validateUsername(email, res)) return;
-
-    if (email.length < 3) {
-        return res.send('Email is too short');
-    }
+    if (!validateEmail(enteredEmail, res)) return;
 
     if (accountExistsOfEmail(enteredEmail)) {
-        return res.send('An account already exists of the specified email');
+        return res.status(409).send('An account with this email already exists');
     }
 
-    if (email.length > 254) {
-        return res.send('Email is too long');
-    }
+    if (!validatePassword(enteredPassword, res)) return;
 
-    if (password.length < 8) {
-        return res.send('Password must be at least 8 characters long');
-    }
+    if (!validateUsername(enteredUsername, res)) return;
 
-    if (username.length < 3) {
-        return res.send('Username is too short');
-    }
-
-    if (username.length > 36) {
-        return res.send('Username is too long');
-    }
-
-    const pwdHash = await bcrypt.hash(req.body.password, 10);
+    const pwdHash = await bcrypt.hash(enteredPassword, 10);
 
     // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 
-    const queryResult = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [email, pwdHash, username]);
+    const queryResult = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [enteredEmail, pwdHash, enteredUsername]);
 
     console.log('Created account:', queryResult.id);
 
@@ -62,13 +42,48 @@ async function accountExistsOfEmail(email) {
 }
 
 function validateEmail(email, res) {
+    if (!isEmail(email)) {
+        res.status(400).send("Invalid email");
+        return false;
+    }
     return true;
 }
 
 function validatePassword(password, res) {
+    if (password.length < 8) {
+        res.status(400).send('Password must be at least 8 characters long');
+        return false;
+    }
     return true;
 }
 
 function validateUsername(username, res) {
+    if ((username.length < 3) || (username.length > 30)) {
+        res.status(400).send("Username should be between 3 and 30 characters")
+    }
+
+    // Validates that string contains only alphanumeric characters, spaces, or underscores
+    const regex = /^[a-zA-Z0-9 _]+$/;
+
+    if (!regex.test(username)) {
+        res.status(400).send("Username can only contain letters, numbers, underscores, and spaces");
+        return false;
+    }
+
+    if (username.includes('__')) {
+        res.status(400).send("Username cannot contain consecutive underscores");
+        return false;
+    }
+
+    if (username.includes('  ')) {
+        res.status(400).send("Username cannot contain consecutive spaces");
+        return false;
+    }
+
+    if (username.includes(' _') || username.includes('_ ')) {
+        res.status(400).send("Username cannot contain adjacent space and underscore");
+        return false;
+    }
+
     return true;
 }
