@@ -1,5 +1,7 @@
+import { isUserLoggedIn } from "../utility.js";
+
 export default async function (req, res) {
-    if (!req.session.user) return res.status(401).end();
+    if (!isUserLoggedIn(req)) return res.status(400).end();
     
     req.session.regenerate((err) => {
         if (!err) return;
