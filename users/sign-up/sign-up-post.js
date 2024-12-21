@@ -4,8 +4,10 @@ import isEmail from "validator/lib/isEmail.js";
 
 import bcrypt from 'bcrypt';
 
+import { isUserLoggedIn, createSessionUserCache } from '../utility.js';
+
 export default async function (req, res) {
-    if (req.session.user) return res.status(400).end();
+    if (isUserLoggedIn(req)) return res.status(400).end();
 
     const enteredEmail = req.body.email;
     const enteredPassword = req.body.password;
@@ -22,19 +24,21 @@ export default async function (req, res) {
 
     if (!validateUsername(enteredUsername, res)) return;
 
-    const pwdHash = await bcrypt.hash(enteredPassword, 10);
-
-    // https://i.sstatic.net/l60Hf.png DEFAULT PFP
-
-    const queryResult = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [enteredEmail, pwdHash, enteredUsername]);
-
-    console.log('Created account:', queryResult.id);
-
-    req.session.user = {
-        id: queryResult.id,
-    };
+    await createUserAccount(req, enteredEmail, enteredPassword, enteredUsername);
 
     res.redirect('/');
+}
+
+async function createUserAccount(req, enteredEmail, enteredPassword, enteredUsername) {
+    const pwdHash = await bcrypt.hash(enteredPassword, 10);
+
+    const newAccountDetails = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [enteredEmail, pwdHash, enteredUsername]);
+
+    console.log('Created account:', newAccountDetails.id);
+
+    createSessionUserCache(req, newAccountDetails.id);
+
+    // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 }
 
 async function accountExistsOfEmail(email) {
@@ -59,7 +63,8 @@ function validatePassword(password, res) {
 
 function validateUsername(username, res) {
     if ((username.length < 3) || (username.length > 30)) {
-        res.status(400).send("Username should be between 3 and 30 characters")
+        res.status(400).send("Username should be between 3 and 30 characters");
+        return false;
     }
 
     const regex = /^[a-zA-Z0-9 _]+$/;
