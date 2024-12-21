@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import { isUserLoggedIn, createSessionUserCache } from '../utility.js';
 
 export default async function (req, res) {
-    if (isUserLoggedIn(req)) return res.status(409).end();
+    if (isUserLoggedIn(req)) return res.status(400).end();
 
     const enteredEmail = req.body.email;
     const enteredPassword = req.body.password;
