@@ -9,6 +9,8 @@ import { db } from './db.js'
 import expressSession from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 
+import usersModule from './users/index.js';
+
 const app = express();
 
 app.use('/assets', express.static(path.join(__public, 'assets'), { index: false, }));
@@ -36,13 +38,7 @@ app.use(
 app.use('/api', (await import('./routes/GET/api/api.js')).default);
 app.use('/api', (await import('./routes/POST/api.js')).default);
 
-app.get('/sign-up', (await import('./routes/GET/sign-up.js')).default);
-app.post('/sign-up', (await import('./routes/POST/sign-up.js')).default);
-
-app.get('/login', (await import('./routes/GET/login.js')).default);
-app.post('/login', (await import('./routes/POST/login.js')).default);
-
-app.post('/logout', (await import('./routes/POST/logout.js')).default);
+await usersModule.initialize(app);
 
 app.get('/', (await import('./routes/GET/root.js')).default);
 

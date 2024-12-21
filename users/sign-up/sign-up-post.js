@@ -1,6 +1,6 @@
 import { db } from '../../db.js';
 
-import { isEmail, isAlphanumeric } from 'validator';
+import isEmail from "validator/lib/isEmail.js";
 
 import bcrypt from 'bcrypt';
 
@@ -14,7 +14,7 @@ export default async function (req, res) {
     // The functions will send a response automatically if validation is unsusccessful
     if (!validateEmail(enteredEmail, res)) return;
 
-    if (accountExistsOfEmail(enteredEmail)) {
+    if (await accountExistsOfEmail(enteredEmail)) {
         return res.status(409).send('An account with this email already exists');
     }
 
@@ -62,7 +62,6 @@ function validateUsername(username, res) {
         res.status(400).send("Username should be between 3 and 30 characters")
     }
 
-    // Validates that string contains only alphanumeric characters, spaces, or underscores
     const regex = /^[a-zA-Z0-9 _]+$/;
 
     if (!regex.test(username)) {
