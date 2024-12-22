@@ -9,6 +9,7 @@ import { db } from './db.js'
 import expressSession from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 
+import apiModule from './users/api/index.js';
 import usersModule from './users/index.js';
 
 const app = express();
@@ -35,8 +36,10 @@ app.use(
     })
 );
 
-app.use('/api', (await import('./routes/GET/api/api.js')).default);
-app.use('/api', (await import('./routes/POST/api.js')).default);
+//app.use('/api', (await import('./routes/GET/api/api.js')).default);
+//app.use('/api', (await import('./routes/POST/api.js')).default);
+
+await apiModule.initialize(app);
 
 await usersModule.initialize(app);
 
