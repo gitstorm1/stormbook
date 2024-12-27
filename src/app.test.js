@@ -2,6 +2,7 @@ import { before, after, describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 
 import request from 'supertest';
+import session from 'supertest-session';
 import expressSession from 'express-session';
 
 import { createApp } from './app.js';
@@ -44,6 +45,28 @@ describe('Authentication', () => {
                 });
 
             assert.strictEqual(res.statusCode, 302, res.body.message);
+        });
+
+        it('should not login if already logged in', async (context) => {
+            const testSession = session(app);
+
+            const passedAttempt = await testSession
+                .post('/api/users/auth/login')
+                .send({
+                    email: 'abc@test.com',
+                    password: '12345678',
+                });
+
+            assert.strictEqual(passedAttempt.statusCode, 302, passedAttempt.body.message);
+
+            const failedAttempt = await testSession
+                .post('/api/users/auth/login')
+                .send({
+                    email: 'abc@test.com',
+                    password: '12345678',
+                });
+            
+            assert.strictEqual(failedAttempt.statusCode, 400);
         });
 
         it('should not login when password incorrect', async (context) => {

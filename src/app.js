@@ -28,6 +28,10 @@ export function createApp(database, sessionMiddleware) {
         if (!(await bcrypt.compare(enteredPassword, accountIdAndHash.pwd_hash))) {
             return res.status(401).json({message: 'Incorrect password'});
         }
+
+        req.session.user = {
+            id: accountIdAndHash.id,
+        };
         
         res.redirect('/');
     });
