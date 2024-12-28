@@ -80,6 +80,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 401) && (failedAttempt.body.message === 'Incorrect password')),
+                failedAttempt.statusCode,
             );
         });
 
@@ -93,6 +94,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 401) && (failedAttempt.body.message === 'Incorrect email')),
+                failedAttempt.statusCode,
             );
         });
     });
@@ -143,6 +145,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid email')),
+                failedAttempt.statusCode,
             );
         });
 
@@ -157,6 +160,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid password')),
+                failedAttempt.statusCode,
             );
         });
 
@@ -171,6 +175,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid username')),
+                failedAttempt.statusCode,
             );
         });
 
@@ -185,6 +190,7 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 409) && (failedAttempt.body.message === 'An account with this email already exists')),
+                failedAttempt.statusCode,
             );
         });
 
