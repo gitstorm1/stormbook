@@ -115,13 +115,13 @@ describe('Authentication', () => {
 
             utilityMock.validate = {
                 email: function(email) {
-                    return email === 'correct@email.com';
+                    return email === 'valid@email.com';
                 },
                 password: function(password) {
                     return password === 'valid-password'
                 },
                 username: function(username) {
-                    return username === 'correct username'
+                    return username === 'valid username'
                 },
             }
         });
@@ -137,11 +137,39 @@ describe('Authentication', () => {
                 .send({
                     email: 'wrong@email.com',
                     password: 'valid-password',
-                    username: 'correct username',
+                    username: 'valid username',
                 });
 
             assert.ok(
                 ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid email')),
+            );
+        });
+
+        it('dont sign up if password invalid', async (context) => {
+            const failedAttempt = await request(app)
+                .post('/api/users/auth/sign-up')
+                .send({
+                    email: 'valid@email.com',
+                    password: 'invalid-password',
+                    username: 'valid username',
+                });
+
+            assert.ok(
+                ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid password')),
+            );
+        });
+
+        it('dont sign up if username invalid', async (context) => {
+            const failedAttempt = await request(app)
+                .post('/api/users/auth/sign-up')
+                .send({
+                    email: 'valid@email.com',
+                    password: 'valid-password',
+                    username: 'invalid username',
+                });
+
+            assert.ok(
+                ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid username')),
             );
         });
     });

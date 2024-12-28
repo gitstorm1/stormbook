@@ -45,6 +45,14 @@ export function createApp(database, sessionMiddleware, utility) {
             return res.status(400).json({message: 'Invalid email'});
         }
 
+        if (!utility.validate.password(enteredPassword)) {
+            return res.status(400).json({message: 'Invalid password'});
+        }
+
+        if (!utility.validate.username(enteredUsername)) {
+            return res.status(400).json({message: 'Invalid username'});
+        }
+
         res.send();
     });
 
