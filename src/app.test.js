@@ -10,6 +10,7 @@ import { createApp } from './app.js';
 import bcrypt from 'bcrypt';
 
 const databaseMock = {};
+const utilityMock = {};
 
 const sessionMiddleware = expressSession({
     secret: '123',
@@ -18,7 +19,7 @@ const sessionMiddleware = expressSession({
     saveUninitialized: false,
 });
 
-const app = createApp(databaseMock, sessionMiddleware);
+const app = createApp(databaseMock, sessionMiddleware, utilityMock);
 
 describe('Authentication', () => {
     describe('Logging in', () => {
@@ -37,14 +38,14 @@ describe('Authentication', () => {
         });
 
         it('should login successfully', async (context) => {
-            const res = await request(app)
+            const passedAttempt = await request(app)
                 .post('/api/users/auth/login')
                 .send({
                     email: 'abc@test.com',
                     password: '12345678',
                 });
 
-            assert.strictEqual(res.statusCode, 302, res.body.message);
+            assert.strictEqual(passedAttempt.statusCode, 302, passedAttempt.body.message);
         });
 
         it('should not login if already logged in', async (context) => {
@@ -70,7 +71,7 @@ describe('Authentication', () => {
         });
 
         it('should not login when password incorrect', async (context) => {
-            const res = await request(app)
+            const failedAttempt = await request(app)
                 .post('/api/users/auth/login')
                 .send({
                     email: 'abc@test.com',
@@ -78,12 +79,12 @@ describe('Authentication', () => {
                 });
 
             assert.ok(
-                ((res.statusCode === 401) && (res.body.message === 'Incorrect password')),
+                ((failedAttempt.statusCode === 401) && (failedAttempt.body.message === 'Incorrect password')),
             );
         });
 
         it('should not login when email incorrect', async (context) => {
-            const res = await request(app)
+            const failedAttempt = await request(app)
                 .post('/api/users/auth/login')
                 .send({
                     email: 'incorrect@test.com',
@@ -91,7 +92,56 @@ describe('Authentication', () => {
                 });
 
             assert.ok(
-                ((res.statusCode === 401) && (res.body.message === 'Incorrect email')),
+                ((failedAttempt.statusCode === 401) && (failedAttempt.body.message === 'Incorrect email')),
+            );
+        });
+    });
+
+    describe("Signing up", () => {
+        // don't sign up when email invalid
+        // don't sign up when password invalid
+        // don't sign up when name invalid
+        // don't sign up if already logged in the session
+        // don't sign up if the account already exists
+
+        before(() => {
+            databaseMock.getAccountIdAndHashFromEmail = async function (email) {
+                if (email === 'incorrect@test.com') return null;
+                return {
+                    id: 1,
+                    pwd_hash: (await bcrypt.hash('12345678', 10)),
+                };
+            }
+
+            utilityMock.validate = {
+                email: function(email) {
+                    return email === 'correct@email.com';
+                },
+                password: function(password) {
+                    return password === 'valid-password'
+                },
+                username: function(username) {
+                    return username === 'corect username'
+                },
+            }
+        });
+
+        after(() => {
+            databaseMock.getAccountIdAndHashFromEmail = undefined;
+            utilityMock.validate = undefined;
+        });
+
+        it('dont sign up if email invalid', async (context) => {
+            const failedAttempt = await request(app)
+                .post('/api/users/auth/sign-up')
+                .send({
+                    email: 'wrong@email.com',
+                    password: 'valid-password',
+                    username: 'correct username',
+                });
+
+            assert.ok(
+                ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid email')),
             );
         });
     });
