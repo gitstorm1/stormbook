@@ -98,6 +98,7 @@ describe('Authentication', () => {
     });
 
     describe("Signing up", () => {
+        // should sign up successfully
         // don't sign up when email invalid
         // don't sign up when password invalid
         // don't sign up when name invalid
@@ -184,6 +185,47 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 409) && (failedAttempt.body.message === 'An account with this email already exists')),
+            );
+        });
+
+        it('should sign up successfully', async (context) => {
+            const passedAttempt = await request(app)
+                .post('/api/v1/users/auth/sign-up')
+                .send({
+                    email: 'valid@email.com',
+                    password: 'valid-password',
+                    username: 'valid username',
+                });
+
+            assert.strictEqual(passedAttempt.statusCode, 302, passedAttempt.body.message);
+        });
+
+        it('dont sign up if already logged in', async (context) => {
+            const testSession = session(app);
+
+            const passedAttempt = await testSession
+                .post('/api/v1/users/auth/sign-up')
+                .send({
+                    email: 'valid@email.com',
+                    password: 'valid-password',
+                    username: 'valid username',
+                });
+
+            assert.strictEqual(passedAttempt.statusCode, 302, passedAttempt.body.message);
+
+            const failedAttempt = await testSession
+                .post('/api/v1/users/auth/sign-up')
+                .send({
+                    email: 'valid@email.com',
+                    password: 'valid-password',
+                    username: 'valid username',
+                });
+
+
+
+            assert.ok(
+                ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'User is already logged in')),
+                failedAttempt.statusCode,
             );
         });
     });

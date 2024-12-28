@@ -37,6 +37,10 @@ export function createApp(database, sessionMiddleware, utility) {
     });
 
     app.post('/api/v1/users/auth/sign-up', async (req, res) => {
+        if (req.session.user) {
+            return res.status(400).json({message: 'User is already logged in'});
+        }
+
         const enteredEmail = req.body.email;
         const enteredPassword = req.body.password;
         const enteredUsername = req.body.username;
@@ -53,11 +57,11 @@ export function createApp(database, sessionMiddleware, utility) {
             return res.status(400).json({message: 'Invalid username'});
         }
 
-        if (database.getAccountIdAndHashFromEmail(enteredEmail) !== null) {
+        if ((await database.getAccountIdAndHashFromEmail(enteredEmail)) !== null) {
             return res.status(409).json({message: 'An account with this email already exists'});
         }
 
-        res.send();
+        res.redirect('/');
     });
 
     return app;
