@@ -106,7 +106,7 @@ describe('Authentication', () => {
 
         before(() => {
             databaseMock.getAccountIdAndHashFromEmail = async function (email) {
-                if (email === 'incorrect@test.com') return null;
+                if (email !== 'valid-accountexists@email.com') return null;
                 return {
                     id: 1,
                     pwd_hash: (await bcrypt.hash('12345678', 10)),
@@ -115,7 +115,7 @@ describe('Authentication', () => {
 
             utilityMock.validate = {
                 email: function(email) {
-                    return email === 'valid@email.com';
+                    return email === 'valid@email.com' || email === 'valid-accountexists@email.com';
                 },
                 password: function(password) {
                     return password === 'valid-password'
@@ -170,6 +170,20 @@ describe('Authentication', () => {
 
             assert.ok(
                 ((failedAttempt.statusCode === 400) && (failedAttempt.body.message === 'Invalid username')),
+            );
+        });
+
+        it('dont sign up if account already exists', async (context) => {
+            const failedAttempt = await request(app)
+                .post('/api/v1/users/auth/sign-up')
+                .send({
+                    email: 'valid-accountexists@email.com',
+                    password: 'valid-password',
+                    username: 'valid username',
+                });
+
+            assert.ok(
+                ((failedAttempt.statusCode === 409) && (failedAttempt.body.message === 'An account with this email already exists')),
             );
         });
     });

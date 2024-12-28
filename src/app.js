@@ -53,6 +53,10 @@ export function createApp(database, sessionMiddleware, utility) {
             return res.status(400).json({message: 'Invalid username'});
         }
 
+        if (database.getAccountIdAndHashFromEmail(enteredEmail) !== null) {
+            return res.status(409).json({message: 'An account with this email already exists'});
+        }
+
         res.send();
     });
 
