@@ -9,7 +9,7 @@ export function createApp(database, sessionMiddleware, utility) {
 
     app.use(sessionMiddleware);
 
-    app.post('/api/users/auth/login', async (req, res) => {
+    app.post('/api/v1/users/auth/login', async (req, res) => {
         if (req.session.user) {
             return res.status(400).json({message: 'User is already logged in'});
         }
@@ -36,7 +36,7 @@ export function createApp(database, sessionMiddleware, utility) {
         res.redirect('/');
     });
 
-    app.post('/api/users/auth/sign-up', async (req, res) => {
+    app.post('/api/v1/users/auth/sign-up', async (req, res) => {
         const enteredEmail = req.body.email;
         const enteredPassword = req.body.password;
         const enteredUsername = req.body.username;

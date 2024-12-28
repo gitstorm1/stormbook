@@ -39,7 +39,7 @@ describe('Authentication', () => {
 
         it('should login successfully', async (context) => {
             const passedAttempt = await request(app)
-                .post('/api/users/auth/login')
+                .post('/api/v1/users/auth/login')
                 .send({
                     email: 'abc@test.com',
                     password: '12345678',
@@ -52,7 +52,7 @@ describe('Authentication', () => {
             const testSession = session(app);
 
             const passedAttempt = await testSession
-                .post('/api/users/auth/login')
+                .post('/api/v1/users/auth/login')
                 .send({
                     email: 'abc@test.com',
                     password: '12345678',
@@ -61,7 +61,7 @@ describe('Authentication', () => {
             assert.strictEqual(passedAttempt.statusCode, 302, passedAttempt.body.message);
 
             const failedAttempt = await testSession
-                .post('/api/users/auth/login')
+                .post('/api/v1/users/auth/login')
                 .send({
                     email: 'abc@test.com',
                     password: '12345678',
@@ -72,7 +72,7 @@ describe('Authentication', () => {
 
         it('should not login when password incorrect', async (context) => {
             const failedAttempt = await request(app)
-                .post('/api/users/auth/login')
+                .post('/api/v1/users/auth/login')
                 .send({
                     email: 'abc@test.com',
                     password: '112345678',
@@ -85,7 +85,7 @@ describe('Authentication', () => {
 
         it('should not login when email incorrect', async (context) => {
             const failedAttempt = await request(app)
-                .post('/api/users/auth/login')
+                .post('/api/v1/users/auth/login')
                 .send({
                     email: 'incorrect@test.com',
                     password: '12345678',
@@ -133,7 +133,7 @@ describe('Authentication', () => {
 
         it('dont sign up if email invalid', async (context) => {
             const failedAttempt = await request(app)
-                .post('/api/users/auth/sign-up')
+                .post('/api/v1/users/auth/sign-up')
                 .send({
                     email: 'wrong@email.com',
                     password: 'valid-password',
@@ -147,7 +147,7 @@ describe('Authentication', () => {
 
         it('dont sign up if password invalid', async (context) => {
             const failedAttempt = await request(app)
-                .post('/api/users/auth/sign-up')
+                .post('/api/v1/users/auth/sign-up')
                 .send({
                     email: 'valid@email.com',
                     password: 'invalid-password',
@@ -161,7 +161,7 @@ describe('Authentication', () => {
 
         it('dont sign up if username invalid', async (context) => {
             const failedAttempt = await request(app)
-                .post('/api/users/auth/sign-up')
+                .post('/api/v1/users/auth/sign-up')
                 .send({
                     email: 'valid@email.com',
                     password: 'valid-password',
