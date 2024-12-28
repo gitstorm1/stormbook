@@ -121,7 +121,7 @@ describe('Authentication', () => {
                     return password === 'valid-password'
                 },
                 username: function(username) {
-                    return username === 'corect username'
+                    return username === 'correct username'
                 },
             }
         });
