@@ -4,6 +4,8 @@ import isEmail from "validator/lib/isEmail.js";
 
 import bcrypt from 'bcrypt';
 
+import { randomUUID } from 'crypto';
+
 import { isUserLoggedIn, createSessionUserCache } from '../utility.js';
 
 export default async function (req, res) {
@@ -32,17 +34,22 @@ export default async function (req, res) {
 async function createUserAccount(req, enteredEmail, enteredPassword, enteredUsername) {
     const pwdHash = await bcrypt.hash(enteredPassword, 10);
 
-    const newAccountDetails = await db.one('INSERT INTO users(email, pwd_hash, username) VALUES($1, $2, $3) RETURNING id;', [enteredEmail, pwdHash, enteredUsername]);
+    const newUserId = randomUUID();
 
-    console.log('Created account:', newAccountDetails.id);
+    await db.none(
+        'INSERT INTO users(id, email, pwd_hash, username) VALUES(?, ?, ?, ?);',
+        [newUserId, enteredEmail, pwdHash, enteredUsername]
+    );
 
-    createSessionUserCache(req, newAccountDetails.id);
+    console.log('Created account:', newUserId);
+
+    createSessionUserCache(req, newUserId);
 
     // https://i.sstatic.net/l60Hf.png DEFAULT PFP
 }
 
 async function accountExistsOfEmail(email) {
-    return (await db.oneOrNone('SELECT id FROM users WHERE email=$1 LIMIT 1', [email])) !== null;
+    return (await db.oneOrNone('SELECT id FROM users WHERE email = ? LIMIT 1;', [email])) !== null;
 }
 
 function validateEmail(email, res) {

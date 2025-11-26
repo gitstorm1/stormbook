@@ -28,8 +28,8 @@ apiRouter.post('/send-friend-request', async (req, res) => {
 
     try {
         const queryResult = await db.oneOrNone(
-            'SELECT id FROM friendships WHERE ((user1_id=$1 AND user2_id=$2) OR (user1_id=$2 AND user2_id=$1));',
-            [req.session.user.id, targetId,]
+            'SELECT id FROM friendships WHERE ((user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?));',
+            [req.session.user.id, targetId, targetId, req.session.user.id]
         );
         if (queryResult) return res.status(400).end();
     } catch(err) {
@@ -39,8 +39,8 @@ apiRouter.post('/send-friend-request', async (req, res) => {
 
     try {
         const queryResult = await db.oneOrNone(
-            'SELECT id FROM friend_requests WHERE ((sender_id=$1 AND receiver_id=$2) OR (sender_id=$2 AND receiver_id=$1));',
-            [req.session.user.id, targetId,]
+            'SELECT id FROM friend_requests WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?));',
+            [req.session.user.id, targetId, targetId, req.session.user.id]
         );
         if (queryResult) return res.status(400).end();
     } catch(err) {
@@ -50,8 +50,8 @@ apiRouter.post('/send-friend-request', async (req, res) => {
 
     try {
         await db.none(
-            'INSERT INTO friend_requests(sender_id, receiver_id) VALUES($1, $2);',
-            [req.session.user.id, targetId,]
+            'INSERT INTO friend_requests(sender_id, receiver_id) VALUES(?, ?);',
+            [req.session.user.id, targetId]
         );
     } catch(err) {
         console.error(err);
@@ -90,8 +90,8 @@ apiRouter.post('/accept-friend-request', async (req, res) => {
 
     try {
         const queryResult = await db.oneOrNone(
-            'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
-            [req.session.user.id, senderId,]
+            'SELECT id FROM friend_requests WHERE (receiver_id = ? AND sender_id = ?);',
+            [req.session.user.id, senderId]
         );
         if (!queryResult) return res.status(400).end();
     } catch(err) {
@@ -100,13 +100,13 @@ apiRouter.post('/accept-friend-request', async (req, res) => {
     }
 
     await db.none(
-        'INSERT INTO friendships(user1_id, user2_id) VALUES($1, $2);',
-        [req.session.user.id, senderId,]
+        'INSERT INTO friendships(user1_id, user2_id) VALUES(?, ?);',
+        [req.session.user.id, senderId]
     );
 
     await db.none(
-        'DELETE FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
-        [req.session.user.id, senderId,],
+        'DELETE FROM friend_requests WHERE (receiver_id = ? AND sender_id = ?);',
+        [req.session.user.id, senderId]
     );
 
     console.log(`User ${req.session.user.id} accepted the friend request of user ${senderId}`);
@@ -135,8 +135,8 @@ apiRouter.post('/decline-friend-request', async (req, res) => {
 
     try {
         const queryResult = await db.oneOrNone(
-            'SELECT id FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
-            [req.session.user.id, senderId,]
+            'SELECT id FROM friend_requests WHERE (receiver_id = ? AND sender_id = ?);',
+            [req.session.user.id, senderId]
         );
         if (!queryResult) return res.status(400).end();
     } catch(err) {
@@ -145,8 +145,8 @@ apiRouter.post('/decline-friend-request', async (req, res) => {
     }
 
     await db.none(
-        'DELETE FROM friend_requests WHERE (receiver_id=$1 AND sender_id=$2);',
-        [req.session.user.id, senderId,],
+        'DELETE FROM friend_requests WHERE (receiver_id = ? AND sender_id = ?);',
+        [req.session.user.id, senderId]
     );
 
     console.log(`User ${req.session.user.id} declined the friend request of user ${senderId}`);
@@ -176,8 +176,8 @@ apiRouter.post('/create-post', async (req, res) => {
 
     try {
         await db.none(
-            'INSERT INTO posts(poster_id, content) VALUES($1, $2);',
-            [req.session.user.id, content,]
+            'INSERT INTO posts(poster_id, content) VALUES(?, ?);',
+            [req.session.user.id, content]
         );
     } catch(err) {
         console.error(err);
@@ -204,20 +204,20 @@ apiRouter.post('/delete-post', async (req, res) => {
     if ((!postId) || (typeof postId !== 'number')) return res.status(400).end();
 
     const queryResult = await db.oneOrNone(
-        'SELECT id FROM posts WHERE (id=$1 AND poster_id=$2);',
-        [postId, req.session.user.id],
+        'SELECT id FROM posts WHERE (id = ? AND poster_id = ?);',
+        [postId, req.session.user.id]
     );
 
     if (!queryResult) return res.status(400).end();
 
     await db.none(
-        'DELETE FROM posts_likes WHERE post_id=$1;',
-        [postId],
+        'DELETE FROM posts_likes WHERE post_id = ?;',
+        [postId]
     );
 
     await db.none(
-        'DELETE FROM posts WHERE id=$1;',
-        [postId],
+        'DELETE FROM posts WHERE id = ?;',
+        [postId]
     );
 
     console.log(`Successfully deleted post ${postId} of user ${req.session.user.id}`);
@@ -245,14 +245,14 @@ apiRouter.post('/like-unlike-post-toggle', async (req, res) => {
     */
 
     const queryResult = await db.oneOrNone(
-        'SELECT id FROM posts_likes WHERE (post_id=$1 AND liker_id=$2);',
-        [postId, req.session.user.id,],
+        'SELECT id FROM posts_likes WHERE (post_id = ? AND liker_id = ?);',
+        [postId, req.session.user.id]
     );
 
     if (queryResult) {
         await db.none(
-            'DELETE FROM posts_likes WHERE id=$1;',
-            [queryResult.id],
+            'DELETE FROM posts_likes WHERE id = ?;',
+            [queryResult.id]
         );
 
         console.log(`User ${req.session.user.id} unliked post ${postId}`);
@@ -262,8 +262,8 @@ apiRouter.post('/like-unlike-post-toggle', async (req, res) => {
 
     try {
         await db.none(
-            'INSERT INTO posts_likes(liker_id, post_id) VALUES($1, $2);',
-            [req.session.user.id, postId,]
+            'INSERT INTO posts_likes(liker_id, post_id) VALUES(?, ?);',
+            [req.session.user.id, postId]
         );
     } catch(err) {
         console.error(err);

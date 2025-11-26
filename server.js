@@ -1,18 +1,22 @@
 "use strict";
 
+import dotenv from 'dotenv';
+dotenv.config()
+
 import { __public } from './config.js';
 import path from 'path';
 
 import express from 'express';
 
-import { db } from './db.js'
 import expressSession from 'express-session';
-import connectPgSimple from 'connect-pg-simple';
+import connectSqlite3 from 'connect-sqlite3';
 
 import apiModule from './users/api/index.js';
 import usersModule from './users/index.js';
 
 const app = express();
+
+const SQLiteStore = connectSqlite3(expressSession);
 
 app.use('/assets', express.static(path.join(__public, 'assets'), { index: false, }));
 
@@ -26,8 +30,8 @@ app.use(
         resave: false,
         saveUninitialized: false,
 
-        store: new ( connectPgSimple(expressSession) ) ({
-            pgPromise: db,
+        store: new SQLiteStore({
+            db: process.env.SESSION_DB_FILE || 'sessions.sqlite3',
         }),
 
         cookie: {

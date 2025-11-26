@@ -1,10 +1,10 @@
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id TEXT PRIMARY KEY,
 
     email TEXT UNIQUE NOT NULL,
-    pwd_hash TEXT UNIQUE NOT NULL,
+    pwd_hash TEXT NOT NULL,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     username TEXT NOT NULL,
 
@@ -14,36 +14,47 @@ CREATE TABLE users (
 );
 
 CREATE TABLE friendships (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    user1_id UUID NOT NULL REFERENCES users(id),
-    user2_id UUID NOT NULL REFERENCES users(id),
+    user1_id TEXT NOT NULL,
+    user2_id TEXT NOT NULL,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user1_id) REFERENCES users(id),
+    FOREIGN KEY (user2_id) REFERENCES users(id)
 );
 
 CREATE TABLE friend_requests (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    sender_id UUID NOT NULL REFERENCES users(id),
-    receiver_id UUID NOT NULL REFERENCES users(id),
+    sender_id TEXT NOT NULL,
+    receiver_id TEXT NOT NULL,
 
-    sent_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
+    sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id)
 );
 
 CREATE TABLE posts (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    poster_id UUID NOT NULL REFERENCES users(id),
+    poster_id TEXT NOT NULL,
 
-    posted_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    posted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    content TEXT NOT NULL
+    content TEXT NOT NULL,
+
+    FOREIGN KEY (poster_id) REFERENCES users(id)
 );
 
 CREATE TABLE posts_likes (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    liker_id UUID NOT NULL REFERENCES users(id),
-    post_id INTEGER NOT NULL REFERENCES posts(id)
+    liker_id TEXT NOT NULL,
+    post_id INTEGER NOT NULL,
+
+    FOREIGN KEY (liker_id) REFERENCES users(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id)
 );

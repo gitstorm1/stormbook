@@ -1,7 +1,7 @@
 {
   "name": "stormbook",
   "version": "1.0.0",
-  "description": "A simple social media web app made using the PERN stack (PostgreSQL, Express, React, Node).",
+  "description": "A simple social media web app for learning purposes, now using SQLite instead of PostgreSQL.",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -19,11 +19,11 @@
   "homepage": "https://github.com/gitstorm1/stormbook#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "connect-pg-simple": "^10.0.0",
+    "connect-sqlite3": "^0.9.16",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "pg-promise": "^11.10.2",
+    "sqlite3": "^5.1.7",
     "validator": "^13.12.0"
   }
 }

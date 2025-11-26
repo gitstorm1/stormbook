@@ -32,7 +32,7 @@ async function logUserIn(req, userId) {
 }
 
 async function getAccountIDAndHashFromEmail(email) {
-    return await db.oneOrNone('SELECT id, pwd_hash FROM users WHERE email=$1 LIMIT 1', [email]);
+    return await db.oneOrNone('SELECT id, pwd_hash FROM users WHERE email = ? LIMIT 1;', [email]);
 }
 
 async function isEnteredPasswordCorrect(enteredPassword, passwordHash) {
